@@ -125,7 +125,7 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
             }
         }
     }
-    public class Participle:Verbum
+    public class Participle : Verbum
     {
         public Participle()
         {
@@ -167,7 +167,10 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
             }
             return result;
         }
+        static Verbum QueryVerba(string word)
+        {
 
+        }
         static void Main(string[] args)
         {
             HtmlAgilityPack.HtmlWeb web = new HtmlWeb();
