@@ -130,16 +130,28 @@ NumberType:{6}
 TenseType:{2}
 MoodType:{3}
 VoiceType:{4}
-DictionaryTerm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, DictionaryTerm,NumberType);
+DictionaryTerm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, DictionaryTerm, NumberType);
             }
-            else if(VerbType == VerbTypes.Infinitive)
+            else if (VerbType == VerbTypes.Infinitive)
             {
                 return String.Format(
 @"
 VerbumType: Infinitive
 TenseType:{0}
 VoiceType:{1}
-BaseForm:{2}",TenseType, VoiceType,BaseForm);
+BaseForm:{2}", TenseType, VoiceType, BaseForm);
+            }
+            else if (VerbType == VerbTypes.Conjugation)
+            {
+                return String.Format(
+@"
+VerbumType:{0}
+PersonType:{1}
+NumberType:{6}
+TenseType:{2}
+MoodType:{3}
+VoiceType:{4}
+BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm, NumberType);
             }
             else
             {
@@ -274,6 +286,95 @@ BaseForm:{2}",TenseType, VoiceType,BaseForm);
                                                     else
                                                     {
                                                         newVerb.VerbType = VerbTypes.Conjugation;
+                                                        switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                        {
+                                                            case "first-person":
+                                                                newVerb.PersonType = PersonTypes.First;
+                                                                break;
+                                                            case "second-person":
+                                                                newVerb.PersonType = PersonTypes.Second;
+                                                                break;
+                                                            case "third-person":
+                                                                newVerb.PersonType = PersonTypes.Third;
+                                                                break;
+                                                        }
+                                                        switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                        {
+                                                            case "singular":
+                                                                newVerb.NumberType = NumberTypes.Singular;
+                                                                break;
+                                                            case "plural":
+                                                                newVerb.NumberType = NumberTypes.Plural;
+                                                                break;
+                                                        }
+                                                        if (liNode.SelectNodes("./span/a").Count == 5)
+                                                        {
+                                                            switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
+                                                            {
+                                                                case "present":
+                                                                    newVerb.TenseType = TenseTypes.Present;
+                                                                    break;
+                                                                case "perfect":
+                                                                    newVerb.TenseType = TenseTypes.Perfect;
+                                                                    break;
+                                                                case "imperfect":
+                                                                    newVerb.TenseType = TenseTypes.Imperfect;
+                                                                    break;
+                                                                case "future":
+                                                                    newVerb.TenseType = TenseTypes.Future;
+                                                                    break;
+                                                                case "pluperfect":
+                                                                    newVerb.TenseType = TenseTypes.Pluperfect;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[4]").InnerText)
+                                                            {
+                                                                case "active":
+                                                                    newVerb.VoiceType = VoiceTypes.Active;
+                                                                    break;
+                                                                case "passive":
+                                                                    newVerb.VoiceType = VoiceTypes.Passive;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[5]").InnerText)
+                                                            {
+                                                                case "indicative":
+                                                                    newVerb.MoodType = MoodTypes.Indicative;
+                                                                    break;
+                                                                case "imperative":
+                                                                    newVerb.MoodType = MoodTypes.Imperative;
+                                                                    break;
+                                                                case "subjunctive":
+                                                                    newVerb.MoodType = MoodTypes.Subjunctive;
+                                                                    break;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            newVerb.TenseType = TenseTypes.FuturePerfect;
+                                                            switch (liNode.SelectSingleNode("./span/a[5]").InnerText)
+                                                            {
+                                                                case "active":
+                                                                    newVerb.VoiceType = VoiceTypes.Active;
+                                                                    break;
+                                                                case "passive":
+                                                                    newVerb.VoiceType = VoiceTypes.Passive;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[6]").InnerText)
+                                                            {
+                                                                case "indicative":
+                                                                    newVerb.MoodType = MoodTypes.Indicative;
+                                                                    break;
+                                                                case "imperative":
+                                                                    newVerb.MoodType = MoodTypes.Imperative;
+                                                                    break;
+                                                                case "subjunctive":
+                                                                    newVerb.MoodType = MoodTypes.Subjunctive;
+                                                                    break;
+                                                            }
+                                                        }
+                                                        verbumList.Add(newVerb);
                                                     }
 
                                                 }
@@ -303,7 +404,7 @@ BaseForm:{2}",TenseType, VoiceType,BaseForm);
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "laudo laudare";
+            string queryString = "laudo laudare laudaverint laudavisti";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
