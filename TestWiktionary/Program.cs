@@ -113,7 +113,8 @@ namespace TestWiktionary
         {
             if (VerbType == VerbTypes.FirstPersonSingular)
             {
-                return String.Format(@"PersonType:{0}
+                return String.Format(
+@"PersonType:{0}
 TenseType:{1}
 MoodType:{2}
 VoiceType:{3}
@@ -167,26 +168,20 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
             }
             return result;
         }
-        static Verbum QueryVerba(string word)
+        static List<Verbum> QueryVerba(string word)
         {
-
-        }
-        static void Main(string[] args)
-        {
+            List<Verbum> verbumList = new List<Verbum>();
             HtmlAgilityPack.HtmlWeb web = new HtmlWeb();
-            HtmlAgilityPack.HtmlDocument doc = web.Load("https://en.wiktionary.org/wiki/audeo");
-            Boolean ifLatinExists = false;
+            HtmlAgilityPack.HtmlDocument doc = web.Load("https://en.wiktionary.org/wiki/" + word);
             if (doc.DocumentNode.SelectNodes("//div[@class='mw-parser-output']//h2") != null)
             {
                 string languageName = "";
                 foreach (HtmlNode languageNameNode in doc.DocumentNode.SelectNodes("//div[@class='mw-parser-output']/h2"))
                 {
                     languageName = GetTitle(languageNameNode);
-                    Console.WriteLine(languageName);
+                   
                     if (languageName == "Latin")
                     {
-                        ifLatinExists = true;
-                        List<Verb> verbList = new List<Verb>();
                         HtmlNode nextNode = languageNameNode.NextSibling;
                         while (nextNode != null)
                         {
@@ -221,7 +216,7 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
                                                 newVerb.PersonType = PersonTypes.FirstSingular;
                                                 newVerb.TenseType = TenseTypes.Present;
                                                 newVerb.VoiceType = VoiceTypes.Active;
-                                                verbList.Add(newVerb);
+                                                verbumList.Add(newVerb);
                                             }
                                             else
                                             {
@@ -242,18 +237,26 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
 
 
                         }
-                        foreach (Verb v in verbList)
-                        {
-                            Console.WriteLine(v.ToString());
-                        }
+
 
                     }
                 }
             }
-            if (!ifLatinExists)
+            return verbumList;
+        }
+        static void Main(string[] args)
+        {
+            string queryString = "amo moneo ago audio capio";
+            List<Verbum> verbumList = new List<Verbum>();
+            foreach (string word in queryString.Split(' '))
             {
-                Console.WriteLine("This is not a latin word");
+                verbumList = QueryVerba(word);
+                foreach (Verb v in verbumList)
+                {
+                    Console.WriteLine(v.ToString());
+                }
             }
+
             Console.ReadKey();
         }
     }
