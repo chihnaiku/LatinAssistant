@@ -38,12 +38,16 @@ namespace TestWiktionary
     }
     public enum PersonTypes
     {
-        FirstSingular = 0,
-        SecondSingular = 1,
-        ThirdSingular = 2,
-        FirstPlural = 3,
-        SecondPlural = 4,
-        ThirdPlural = 5
+        First = 0,
+        Second= 1,
+        Third = 2,
+
+    }
+    public enum NumberTypes
+    {
+        Singular = 0,
+        Plural = 1
+
     }
     public enum VerbumTypes
     {
@@ -94,6 +98,11 @@ namespace TestWiktionary
             get;
             set;
         }
+        public NumberTypes NumberType
+        {
+            get;
+            set;
+        }
         public string DictionaryTerm
         {
             get;
@@ -114,11 +123,23 @@ namespace TestWiktionary
             if (VerbType == VerbTypes.FirstPersonSingular)
             {
                 return String.Format(
-@"PersonType:{0}
-TenseType:{1}
-MoodType:{2}
-VoiceType:{3}
-DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm);
+@"
+VerbumType:{0}
+PersonType:{1}
+NumberType:{6}
+TenseType:{2}
+MoodType:{3}
+VoiceType:{4}
+DictionaryTerm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, DictionaryTerm,NumberType);
+            }
+            else if(VerbType == VerbTypes.Infinitive)
+            {
+                return String.Format(
+@"
+VerbumType: Infinitive
+TenseType:{0}
+VoiceType:{1}
+BaseForm:{2}",TenseType, VoiceType,BaseForm);
             }
             else
             {
@@ -179,7 +200,7 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
                 foreach (HtmlNode languageNameNode in doc.DocumentNode.SelectNodes("//div[@class='mw-parser-output']/h2"))
                 {
                     languageName = GetTitle(languageNameNode);
-                   
+
                     if (languageName == "Latin")
                     {
                         HtmlNode nextNode = languageNameNode.NextSibling;
@@ -187,20 +208,20 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
                         {
                             if (nextNode.OriginalName != "h2")
                             {
-                                //Console.WriteLine(nextNode.OuterHtml.Length);
                                 if (nextNode.OuterHtml.Length > 1)
                                 {
-                                    if (nextNode.OriginalName == "h3")
+                                    if (nextNode.OriginalName.StartsWith("h"))
                                     {
                                         string sectionName = GetTitle(nextNode);
                                         if (sectionName == "Verb")
                                         {
                                             HtmlNode pNode = nextNode.NextSibling.NextSibling;
                                             HtmlNode olNode = pNode.NextSibling.NextSibling;
-                                            Verb newVerb = new Verb();
-                                            Console.WriteLine("Verb Found");
+
+                                            //Console.WriteLine("Verb Found");
                                             if (pNode.ChildNodes.Count > 5)
                                             {
+                                                Verb newVerb = new Verb();
                                                 newVerb.VerbType = VerbTypes.FirstPersonSingular;
                                                 string dictionaryTermString = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
                                                 newVerb.BaseForm = dictionaryTermString;
@@ -213,14 +234,49 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
                                                 //Console.WriteLine(dictionaryTermString);
                                                 newVerb.DictionaryTerm = dictionaryTermString;
                                                 newVerb.MoodType = MoodTypes.Indicative;
-                                                newVerb.PersonType = PersonTypes.FirstSingular;
+                                                newVerb.PersonType = PersonTypes.First;
+                                                newVerb.NumberType = NumberTypes.Singular;
                                                 newVerb.TenseType = TenseTypes.Present;
                                                 newVerb.VoiceType = VoiceTypes.Active;
                                                 verbumList.Add(newVerb);
                                             }
                                             else
                                             {
-                                                newVerb.VerbType = VerbTypes.Conjugation;
+
+                                                foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
+                                                {
+                                                    Verb newVerb = new Verb();
+                                                    newVerb.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
+
+                                                    if (liNode.InnerHtml.Contains("infinitive"))
+                                                    {
+                                                        newVerb.VerbType = VerbTypes.Infinitive;
+                                                        switch(liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                        {
+                                                            case "present":
+                                                                newVerb.TenseType = TenseTypes.Present;
+                                                                break;
+                                                            case "perfect":
+                                                                newVerb.TenseType = TenseTypes.Perfect;
+                                                                break;
+                                                        }
+                                                        switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                        {
+                                                            case "active":
+                                                                newVerb.VoiceType = VoiceTypes.Active;
+                                                                break;
+                                                            case "passive":
+                                                                newVerb.VoiceType = VoiceTypes.Passive;
+                                                                break;
+                                                        }
+                                                        verbumList.Add(newVerb);
+                                                    }
+                                                    else
+                                                    {
+                                                        newVerb.VerbType = VerbTypes.Conjugation;
+                                                    }
+
+                                                }
                                             }
 
 
@@ -246,15 +302,29 @@ DictionaryTerm:{4}", PersonType, TenseType, MoodType, VoiceType, DictionaryTerm)
         }
         static void Main(string[] args)
         {
-            string queryString = "amo moneo ago audio capio";
+            //string queryString = "amo moneo ago audio capio fio";
+            string queryString = "laudo laudare";
+            Console.WriteLine("The Query String is ");
+            Console.WriteLine(queryString);
+            Console.WriteLine("####Start Querying####");
             List<Verbum> verbumList = new List<Verbum>();
             foreach (string word in queryString.Split(' '))
             {
                 verbumList = QueryVerba(word);
-                foreach (Verb v in verbumList)
+                Console.WriteLine(word);
+                if (verbumList.Count >= 1)
                 {
-                    Console.WriteLine(v.ToString());
+                    foreach (Verb v in verbumList)
+                    {
+                        Console.WriteLine(v.ToString());
+                    }
+                    Console.WriteLine();
                 }
+                else
+                {
+                    Console.WriteLine("This is not a latin word");
+                }
+
             }
 
             Console.ReadKey();
