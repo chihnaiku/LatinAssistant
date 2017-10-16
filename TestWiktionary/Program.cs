@@ -39,7 +39,7 @@ namespace TestWiktionary
     public enum PersonTypes
     {
         First = 0,
-        Second= 1,
+        Second = 1,
         Third = 2,
 
     }
@@ -58,6 +58,22 @@ namespace TestWiktionary
         Interjection = 5,
         Pronoun = 6,
         Preposition = 7
+    }
+    public enum CaseTypes
+    {
+        Nominative = 0,
+        Genitive = 1,
+        Dative = 2,
+        Accusative = 3,
+        Ablative = 4,
+        Vocative = 5,
+        Locative = 6
+    }
+    public enum GenderTypes
+    {
+        Masuculine = 0,
+        Feminine = 1,
+        Neuter = 2
     }
     public class Verbum
     {
@@ -165,17 +181,17 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
         {
             VerbumType = VerbumTypes.Participle;
         }
-        public string Case
+        public CaseTypes CaseType
         {
             get;
             set;
         }
-        public string Gender
+        public GenderTypes GenderType
         {
             get;
             set;
         }
-        public string Number
+        public NumberTypes NumberType
         {
             get;
             set;
@@ -184,6 +200,16 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
         {
             get;
             set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Participle
+CaseType:{0}
+GenderType:{1}
+NumberType:{2}
+",CaseType,GenderType,NumberType);
         }
     }
     class Program
@@ -263,7 +289,7 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
                                                     if (liNode.InnerHtml.Contains("infinitive"))
                                                     {
                                                         newVerb.VerbType = VerbTypes.Infinitive;
-                                                        switch(liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                        switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
                                                         {
                                                             case "present":
                                                                 newVerb.TenseType = TenseTypes.Present;
@@ -282,6 +308,10 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
                                                                 break;
                                                         }
                                                         verbumList.Add(newVerb);
+                                                    }
+                                                    else if (liNode.InnerHtml.Contains("supine"))
+                                                    {
+                                                        ;
                                                     }
                                                     else
                                                     {
@@ -382,7 +412,75 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
 
 
                                         }
+                                        else if (sectionName == "Participle")
+                                        {
+                                            HtmlNode pNode = nextNode.NextSibling.NextSibling;
+                                            HtmlNode olNode = pNode.NextSibling.NextSibling;
 
+                                            //Console.WriteLine("Verb Found");
+                                            if (pNode.ChildNodes.Count > 5)
+                                            {
+                                                Participle newParticiple = new Participle();
+                                                newParticiple.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                                newParticiple.CaseType = CaseTypes.Nominative;
+                                                newParticiple.GenderType = GenderTypes.Masuculine;
+                                                newParticiple.NumberType = NumberTypes.Singular;
+                                                verbumList.Add(newParticiple);
+                                            }
+                                            else
+                                            {
+                                                foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
+                                                {
+                                                    Participle newParticiple = new Participle();
+                                                    newParticiple.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
+                                                    switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                    {
+                                                        case "nominative":
+                                                            newParticiple.CaseType = CaseTypes.Nominative;
+                                                            break;
+                                                        case "genitive":
+                                                            newParticiple.CaseType = CaseTypes.Genitive;
+                                                            break;
+                                                        case "dative":
+                                                            newParticiple.CaseType = CaseTypes.Dative;
+                                                            break;
+                                                        case "accusative":
+                                                            newParticiple.CaseType = CaseTypes.Accusative;
+                                                            break;
+                                                        case "ablative":
+                                                            newParticiple.CaseType = CaseTypes.Ablative;
+                                                            break;
+                                                        case "vocative":
+                                                            newParticiple.CaseType = CaseTypes.Vocative;
+                                                            break;
+                                                    }
+                                                    switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                    {
+                                                        case "masculine":
+                                                            newParticiple.GenderType = GenderTypes.Masuculine;
+                                                            break;
+                                                        case "feminine":
+                                                            newParticiple.GenderType = GenderTypes.Feminine;
+                                                            break;
+                                                        case "neuter":
+                                                            newParticiple.GenderType = GenderTypes.Feminine;
+                                                            break;
+                                                        
+                                                    }
+                                                    switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
+                                                    {
+                                                        case "singular":
+                                                            newParticiple.NumberType = NumberTypes.Singular;
+                                                            break;
+                                                        case "plural":
+                                                            newParticiple.NumberType = NumberTypes.Plural;
+                                                            break;
+                                                    }
+
+                                                    verbumList.Add(newParticiple);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 nextNode = nextNode.NextSibling;
@@ -404,7 +502,7 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "laudo laudare laudaverint laudavisti";
+            string queryString = "agens agentis actum acturus agendis agendus";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
@@ -415,7 +513,7 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
                 Console.WriteLine(word);
                 if (verbumList.Count >= 1)
                 {
-                    foreach (Verb v in verbumList)
+                    foreach (Verbum v in verbumList)
                     {
                         Console.WriteLine(v.ToString());
                     }
