@@ -351,29 +351,30 @@ BaseForm:{3}
                                                     else
                                                     {
                                                         newVerb.VerbType = VerbTypes.Conjugation;
-                                                        switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
-                                                        {
-                                                            case "first-person":
-                                                                newVerb.PersonType = PersonTypes.First;
-                                                                break;
-                                                            case "second-person":
-                                                                newVerb.PersonType = PersonTypes.Second;
-                                                                break;
-                                                            case "third-person":
-                                                                newVerb.PersonType = PersonTypes.Third;
-                                                                break;
-                                                        }
-                                                        switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
-                                                        {
-                                                            case "singular":
-                                                                newVerb.NumberType = NumberTypes.Singular;
-                                                                break;
-                                                            case "plural":
-                                                                newVerb.NumberType = NumberTypes.Plural;
-                                                                break;
-                                                        }
+
                                                         if (liNode.SelectNodes("./span/a").Count == 5)
                                                         {
+                                                            switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                            {
+                                                                case "first-person":
+                                                                    newVerb.PersonType = PersonTypes.First;
+                                                                    break;
+                                                                case "second-person":
+                                                                    newVerb.PersonType = PersonTypes.Second;
+                                                                    break;
+                                                                case "third-person":
+                                                                    newVerb.PersonType = PersonTypes.Third;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                            {
+                                                                case "singular":
+                                                                    newVerb.NumberType = NumberTypes.Singular;
+                                                                    break;
+                                                                case "plural":
+                                                                    newVerb.NumberType = NumberTypes.Plural;
+                                                                    break;
+                                                            }
                                                             switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
                                                             {
                                                                 case "present":
@@ -414,9 +415,82 @@ BaseForm:{3}
                                                                     break;
                                                             }
                                                         }
-                                                        else
+                                                        else if (liNode.SelectNodes("./span/a").Count == 4)
+                                                        {
+
+                                                            switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                            {
+                                                                case "singular":
+                                                                    newVerb.NumberType = NumberTypes.Singular;
+                                                                    break;
+                                                                case "plural":
+                                                                    newVerb.NumberType = NumberTypes.Plural;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                            {
+                                                                case "present":
+                                                                    newVerb.TenseType = TenseTypes.Present;
+                                                                    break;
+                                                                case "perfect":
+                                                                    newVerb.TenseType = TenseTypes.Perfect;
+                                                                    break;
+                                                                case "imperfect":
+                                                                    newVerb.TenseType = TenseTypes.Imperfect;
+                                                                    break;
+                                                                case "future":
+                                                                    newVerb.TenseType = TenseTypes.Future;
+                                                                    break;
+                                                                case "pluperfect":
+                                                                    newVerb.TenseType = TenseTypes.Pluperfect;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
+                                                            {
+                                                                case "active":
+                                                                    newVerb.VoiceType = VoiceTypes.Active;
+                                                                    break;
+                                                                case "passive":
+                                                                    newVerb.VoiceType = VoiceTypes.Passive;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[4]").InnerText)
+                                                            {
+                                                                case "indicative":
+                                                                    newVerb.MoodType = MoodTypes.Indicative;
+                                                                    break;
+                                                                case "imperative":
+                                                                    newVerb.MoodType = MoodTypes.Imperative;
+                                                                    break;
+                                                                case "subjunctive":
+                                                                    newVerb.MoodType = MoodTypes.Subjunctive;
+                                                                    break;
+                                                            }
+                                                        }
+                                                        else if(liNode.SelectNodes("./span/a").Count == 6)
                                                         {
                                                             newVerb.TenseType = TenseTypes.FuturePerfect;
+                                                            switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                            {
+                                                                case "first-person":
+                                                                    newVerb.PersonType = PersonTypes.First;
+                                                                    break;
+                                                                case "second-person":
+                                                                    newVerb.PersonType = PersonTypes.Second;
+                                                                    break;
+                                                                case "third-person":
+                                                                    newVerb.PersonType = PersonTypes.Third;
+                                                                    break;
+                                                            }
+                                                            switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                            {
+                                                                case "singular":
+                                                                    newVerb.NumberType = NumberTypes.Singular;
+                                                                    break;
+                                                                case "plural":
+                                                                    newVerb.NumberType = NumberTypes.Plural;
+                                                                    break;
+                                                            }
                                                             switch (liNode.SelectSingleNode("./span/a[5]").InnerText)
                                                             {
                                                                 case "active":
