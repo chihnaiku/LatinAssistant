@@ -678,7 +678,7 @@ BaseForm:{3}
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "agens amaverunt porta portarum portis laboratorum";
+            string queryString = "labor virum vocat";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
