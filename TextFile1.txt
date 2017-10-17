@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -76,45 +76,12 @@ namespace TestWiktionary
         Feminine = 1,
         Neuter = 2
     }
-
     public class Verbum
     {
         public VerbumTypes VerbumType
         {
             get;
             set;
-        }
-    }
-    public class Noun : Verbum
-    {
-        public Noun()
-        {
-            VerbumType = VerbumTypes.Noun;
-        }
-        public NumberTypes NumberType
-        {
-            get;
-            set;
-        }
-        public CaseTypes CaseType
-        {
-            get;
-            set;
-        }
-        public string BaseForm
-        {
-            get;
-            set;
-        }
-        public override string ToString()
-        {
-            return String.Format(
-@"
-VerbumType: Noun
-CaseType:{0}
-NumberType:{1}
-BaseForm:{2}
-", CaseType, NumberType, BaseForm);
         }
     }
     public class Verb : Verbum
@@ -209,6 +176,37 @@ BaseForm:{5}", VerbumType, PersonType, TenseType, MoodType, VoiceType, BaseForm,
             }
         }
     }
+    public class Noun : Verbum
+    {
+        public Noun()
+        {
+            VerbumType = VerbumTypes.Noun;
+        }
+        public CaseTypes CaseType
+        {
+            get;
+            set;
+        }
+        public NumberTypes NumberType
+        {
+            get;
+            set;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Noun
+CaseType:{0}
+NumberType:{1}
+", CaseType, NumberType);
+        }
+    }
     public class Participle : Verbum
     {
         public Participle()
@@ -243,8 +241,7 @@ VerbumType: Participle
 CaseType:{0}
 GenderType:{1}
 NumberType:{2}
-BaseForm:{3}
-", CaseType, GenderType, NumberType, BaseForm);
+", CaseType,GenderType, NumberType);
         }
     }
     class Program
@@ -520,15 +517,10 @@ BaseForm:{3}
                                         {
                                             HtmlNode pNode = nextNode.NextSibling.NextSibling;
                                             HtmlNode olNode = pNode.NextSibling.NextSibling;
-
-                                            //Console.WriteLine("Verb Found");
                                             if (pNode.ChildNodes.Count > 5)
                                             {
                                                 Noun newNoun = new Noun();
-
                                                 newNoun.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
-
-
                                                 newNoun.CaseType = CaseTypes.Nominative;
                                                 newNoun.NumberType = NumberTypes.Singular;
                                                 verbumList.Add(newNoun);
@@ -538,15 +530,7 @@ BaseForm:{3}
                                                 foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
                                                 {
                                                     Noun newNoun = new Noun();
-                                                    if (liNode.SelectSingleNode(".//i/a") != null)
-                                                    {
-                                                        newNoun.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
-                                                    }
-                                                    else
-                                                    {
-                                                        newNoun.BaseForm = liNode.SelectSingleNode(".//i/strong").InnerText;
-                                                    }
-                                                    
+                                                    newNoun.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
                                                     switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
                                                     {
                                                         case "nominative":
@@ -581,38 +565,43 @@ BaseForm:{3}
 
                                                     verbumList.Add(newNoun);
                                                 }
+
                                             }
                                         }
+                                        
                                     }
+                                    else
+                                    {
+                                        break;
+                                    }
+
+
                                 }
-                                nextNode = nextNode.NextSibling;
-                            }
-                            else
-                            {
-                                break;
-                            }
 
 
+                            }
+                            nextNode = nextNode.NextSibling;
                         }
-
-
                     }
+                   
                 }
+                
             }
             return verbumList;
         }
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "agens amaverunt porta portarum portis laboratorum";
+            string queryString = "agens agentis actum acturus agendis agendus";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
             List<Verbum> verbumList = new List<Verbum>();
             foreach (string word in queryString.Split(' '))
             {
-                verbumList = QueryVerba(word);
                 Console.WriteLine(word);
+                verbumList = QueryVerba(word);
+                
                 if (verbumList.Count >= 1)
                 {
                     foreach (Verbum v in verbumList)
