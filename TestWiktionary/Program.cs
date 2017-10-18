@@ -75,7 +75,6 @@ namespace TestWiktionary
         Masuculine = 0,
         Feminine = 1,
         Neuter = 2,
-        All = 3
     }
 
     public class Verbum
@@ -323,7 +322,36 @@ BaseForm:{0}
         {
             VerbumType = VerbumTypes.Pronoun;
         }
+        public CaseTypes CaseType
+        {
+            get;
+            set;
+        }
 
+        public NumberTypes NumberType
+        {
+            get;
+            set;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public string DictionaryTerm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Pronoun 
+CaseType:{0}
+NumberType:{1}
+", CaseType, NumberType);
+        }
     }
     class Program
     {
@@ -860,64 +888,79 @@ BaseForm:{0}
                                             //Console.WriteLine("Verb Found");
                                             if (pNode.ChildNodes.Count > 1)
                                             {
-                                                Participle newParticiple = new Participle();
-                                                newParticiple.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
-                                                newParticiple.CaseType = CaseTypes.Nominative;
-                                                newParticiple.GenderType = GenderTypes.Masuculine;
-                                                newParticiple.NumberType = NumberTypes.Singular;
-                                                verbumList.Add(newParticiple);
+                                                Pronoun newPronoun = new Pronoun();
+                                                newPronoun.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                                newPronoun.CaseType = CaseTypes.Nominative;
+                                                newPronoun.NumberType = NumberTypes.Singular;
+                                                verbumList.Add(newPronoun);
+                                            }
+                                            else if(word=="mihi" || word== "tibi")
+                                            {
+                                                Pronoun newPronoun = new Pronoun();
+                                                newPronoun.BaseForm = word;
+                                                newPronoun.CaseType = CaseTypes.Dative;
+                                                newPronoun.NumberType = NumberTypes.Singular;
+                                                verbumList.Add(newPronoun);
+                                            }
+                                            else if (word == "is" )
+                                            {
+                                                Pronoun newPronoun = new Pronoun();
+                                                newPronoun.BaseForm = word;
+                                                newPronoun.CaseType = CaseTypes.Nominative;
+                                                newPronoun.NumberType = NumberTypes.Singular;
+                                                verbumList.Add(newPronoun);
                                             }
                                             else
                                             {
                                                 foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
                                                 {
-                                                    Participle newParticiple = new Participle();
-                                                    newParticiple.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
-                                                    switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                    Pronoun newPronoun = new Pronoun();
+                                                    if(liNode.SelectSingleNode(".//i/a") != null)
                                                     {
-                                                        case "nominative":
-                                                            newParticiple.CaseType = CaseTypes.Nominative;
-                                                            break;
-                                                        case "genitive":
-                                                            newParticiple.CaseType = CaseTypes.Genitive;
-                                                            break;
-                                                        case "dative":
-                                                            newParticiple.CaseType = CaseTypes.Dative;
-                                                            break;
-                                                        case "accusative":
-                                                            newParticiple.CaseType = CaseTypes.Accusative;
-                                                            break;
-                                                        case "ablative":
-                                                            newParticiple.CaseType = CaseTypes.Ablative;
-                                                            break;
-                                                        case "vocative":
-                                                            newParticiple.CaseType = CaseTypes.Vocative;
-                                                            break;
+                                                        newPronoun.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
                                                     }
-                                                    switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                    else
                                                     {
-                                                        case "masculine":
-                                                            newParticiple.GenderType = GenderTypes.Masuculine;
-                                                            break;
-                                                        case "feminine":
-                                                            newParticiple.GenderType = GenderTypes.Feminine;
-                                                            break;
-                                                        case "neuter":
-                                                            newParticiple.GenderType = GenderTypes.Feminine;
-                                                            break;
-
-                                                    }
-                                                    switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
-                                                    {
-                                                        case "singular":
-                                                            newParticiple.NumberType = NumberTypes.Singular;
-                                                            break;
-                                                        case "plural":
-                                                            newParticiple.NumberType = NumberTypes.Plural;
-                                                            break;
+                                                        newPronoun.BaseForm= pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
                                                     }
 
-                                                    verbumList.Add(newParticiple);
+                                                    if (liNode.InnerHtml.ToLower().Contains("nominative"))
+                                                    {
+                                                        newPronoun.CaseType = CaseTypes.Nominative;
+                                                        
+                                                    }
+                                                    else if (liNode.InnerHtml.ToLower().Contains("genitive"))
+                                                    {
+                                                        newPronoun.CaseType = CaseTypes.Genitive;
+
+                                                    }
+                                                    else if (liNode.InnerHtml.ToLower().Contains("dative"))
+                                                    {
+                                                        newPronoun.CaseType = CaseTypes.Dative;
+
+                                                    }
+                                                    else if (liNode.InnerHtml.ToLower().Contains("accusative"))
+                                                    {
+                                                        newPronoun.CaseType = CaseTypes.Accusative;
+
+                                                    }
+                                                    else if (liNode.InnerHtml.ToLower().Contains("ablative"))
+                                                    {
+                                                        newPronoun.CaseType = CaseTypes.Ablative;
+
+                                                    }
+
+                                                    if (liNode.InnerHtml.ToLower().Contains("singular"))
+                                                    {
+                                                        newPronoun.NumberType=NumberTypes.Singular;
+
+                                                    }
+                                                    else if (liNode.InnerHtml.ToLower().Contains("plural"))
+                                                    {
+                                                        newPronoun.NumberType = NumberTypes.Plural;
+
+                                                    }
+                                                    verbumList.Add(newPronoun);
                                                 }
                                             }
                                         }
@@ -942,7 +985,7 @@ BaseForm:{0}
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "labor virum vocat longos longe lente cito diu longissime longius tantum";
+            string queryString = "labor virum vocat longos tibi eam nobis vobis huius cuius";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
