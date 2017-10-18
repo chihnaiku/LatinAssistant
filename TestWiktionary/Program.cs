@@ -247,6 +247,49 @@ BaseForm:{3}
 ", CaseType, GenderType, NumberType, BaseForm);
         }
     }
+    public class Adjective : Verbum
+    {
+        public Adjective()
+        {
+            VerbumType = VerbumTypes.Adjective;
+        }
+        public CaseTypes CaseType
+        {
+            get;
+            set;
+        }
+        public GenderTypes GenderType
+        {
+            get;
+            set;
+        }
+        public NumberTypes NumberType
+        {
+            get;
+            set;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public string DictionaryTerm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Adjective 
+CaseType:{0}
+GenderType:{1}
+NumberType:{2}
+BaseForm:{3}
+", CaseType, GenderType, NumberType, BaseForm);
+        }
+    }
     class Program
     {
         static string GetTitle(HtmlNode node)
@@ -657,6 +700,85 @@ BaseForm:{3}
                                                 }
                                             }
                                         }
+                                        else if (sectionName == "Adjective")
+                                        {
+                                            HtmlNode pNode = nextNode.NextSibling.NextSibling;
+                                            HtmlNode olNode = pNode.NextSibling.NextSibling;
+
+                                            //Console.WriteLine("Verb Found");
+                                            if (pNode.ChildNodes.Count > 5)
+                                            {
+                                                Adjective newAdj = new Adjective();
+                                                newAdj.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                                string dictionaryTermString = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                                
+
+                                                foreach (HtmlNode nodeInsideP in pNode.SelectNodes("./b/a"))
+                                                {
+                                                    dictionaryTermString += ",";
+                                                    dictionaryTermString += nodeInsideP.InnerText;
+                                                }
+                                                //Console.WriteLine(dictionaryTermString);
+                                                newAdj.DictionaryTerm = dictionaryTermString;
+                                                newAdj.CaseType = CaseTypes.Nominative;
+                                                newAdj.GenderType = GenderTypes.Masuculine;
+                                                newAdj.NumberType = NumberTypes.Singular;
+                                                verbumList.Add(newAdj);
+                                            }
+                                            else
+                                            {
+                                                foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
+                                                {
+                                                    Adjective newAdj = new Adjective();
+                                                    newAdj.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
+                                                    switch (liNode.SelectSingleNode("./span/a[1]").InnerText)
+                                                    {
+                                                        case "nominative":
+                                                            newAdj.CaseType = CaseTypes.Nominative;
+                                                            break;
+                                                        case "genitive":
+                                                            newAdj.CaseType = CaseTypes.Genitive;
+                                                            break;
+                                                        case "dative":
+                                                            newAdj.CaseType = CaseTypes.Dative;
+                                                            break;
+                                                        case "accusative":
+                                                            newAdj.CaseType = CaseTypes.Accusative;
+                                                            break;
+                                                        case "ablative":
+                                                            newAdj.CaseType = CaseTypes.Ablative;
+                                                            break;
+                                                        case "vocative":
+                                                            newAdj.CaseType = CaseTypes.Vocative;
+                                                            break;
+                                                    }
+                                                    switch (liNode.SelectSingleNode("./span/a[2]").InnerText)
+                                                    {
+                                                        case "masculine":
+                                                            newAdj.GenderType = GenderTypes.Masuculine;
+                                                            break;
+                                                        case "feminine":
+                                                            newAdj.GenderType = GenderTypes.Feminine;
+                                                            break;
+                                                        case "neuter":
+                                                            newAdj.GenderType = GenderTypes.Feminine;
+                                                            break;
+
+                                                    }
+                                                    switch (liNode.SelectSingleNode("./span/a[3]").InnerText)
+                                                    {
+                                                        case "singular":
+                                                            newAdj.NumberType = NumberTypes.Singular;
+                                                            break;
+                                                        case "plural":
+                                                            newAdj.NumberType = NumberTypes.Plural;
+                                                            break;
+                                                    }
+
+                                                    verbumList.Add(newAdj);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 nextNode = nextNode.NextSibling;
@@ -678,7 +800,7 @@ BaseForm:{3}
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "labor virum vocat";
+            string queryString = "labor virum vocat longus longos longo fortis acer acerrimus carissimus fortia";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
