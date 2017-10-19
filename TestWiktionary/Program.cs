@@ -58,7 +58,9 @@ namespace TestWiktionary
         Adjective = 4,
         Interjection = 5,
         Pronoun = 6,
-        Preposition = 7
+        Preposition = 7,
+        Conjunction = 8
+
     }
     public enum CaseTypes
     {
@@ -351,6 +353,66 @@ VerbumType: Pronoun
 CaseType:{0}
 NumberType:{1}
 ", CaseType, NumberType);
+        }
+    }
+    public class Prepostion : Verbum
+    {
+        public Prepostion()
+        {
+            VerbumType = VerbumTypes.Preposition;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Prepostion
+BaseForm:{0}
+", BaseForm);
+        }
+    }
+    public class Conjunction : Verbum
+    {
+        public Conjunction()
+        {
+            VerbumType = VerbumTypes.Conjunction;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Conjunction
+BaseForm:{0}
+", BaseForm);
+        }
+    }
+    public class Interjection : Verbum
+    {
+        public Interjection()
+        {
+            VerbumType = VerbumTypes.Conjunction;
+        }
+        public string BaseForm
+        {
+            get;
+            set;
+        }
+        public override string ToString()
+        {
+            return String.Format(
+@"
+VerbumType: Interjection
+BaseForm:{0}
+", BaseForm);
         }
     }
     class Program
@@ -894,7 +956,7 @@ NumberType:{1}
                                                 newPronoun.NumberType = NumberTypes.Singular;
                                                 verbumList.Add(newPronoun);
                                             }
-                                            else if(word=="mihi" || word== "tibi")
+                                            else if (word == "mihi" || word == "tibi")
                                             {
                                                 Pronoun newPronoun = new Pronoun();
                                                 newPronoun.BaseForm = word;
@@ -902,7 +964,7 @@ NumberType:{1}
                                                 newPronoun.NumberType = NumberTypes.Singular;
                                                 verbumList.Add(newPronoun);
                                             }
-                                            else if (word == "is" )
+                                            else if (word == "is")
                                             {
                                                 Pronoun newPronoun = new Pronoun();
                                                 newPronoun.BaseForm = word;
@@ -915,19 +977,19 @@ NumberType:{1}
                                                 foreach (HtmlNode liNode in olNode.SelectNodes("./li"))
                                                 {
                                                     Pronoun newPronoun = new Pronoun();
-                                                    if(liNode.SelectSingleNode(".//i/a") != null)
+                                                    if (liNode.SelectSingleNode(".//i/a") != null)
                                                     {
                                                         newPronoun.BaseForm = liNode.SelectSingleNode(".//i/a").InnerText;
                                                     }
                                                     else
                                                     {
-                                                        newPronoun.BaseForm= pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                                        newPronoun.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
                                                     }
 
                                                     if (liNode.InnerHtml.ToLower().Contains("nominative"))
                                                     {
                                                         newPronoun.CaseType = CaseTypes.Nominative;
-                                                        
+
                                                     }
                                                     else if (liNode.InnerHtml.ToLower().Contains("genitive"))
                                                     {
@@ -952,7 +1014,7 @@ NumberType:{1}
 
                                                     if (liNode.InnerHtml.ToLower().Contains("singular"))
                                                     {
-                                                        newPronoun.NumberType=NumberTypes.Singular;
+                                                        newPronoun.NumberType = NumberTypes.Singular;
 
                                                     }
                                                     else if (liNode.InnerHtml.ToLower().Contains("plural"))
@@ -963,6 +1025,30 @@ NumberType:{1}
                                                     verbumList.Add(newPronoun);
                                                 }
                                             }
+                                        }
+                                        else if (sectionName == "Conjunction")
+                                        {
+                                            HtmlNode pNode = nextNode.NextSibling.NextSibling;
+                                            HtmlNode olNode = pNode.NextSibling.NextSibling;
+                                            Conjunction newConjunction = new Conjunction();
+                                           newConjunction.BaseForm= pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                            verbumList.Add(newConjunction);
+                                        }
+                                        else if (sectionName == "Preposition")
+                                        {
+                                            HtmlNode pNode = nextNode.NextSibling.NextSibling;
+                                            HtmlNode olNode = pNode.NextSibling.NextSibling;
+                                            Prepostion newPrepostion = new Prepostion();
+                                            newPrepostion.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                            verbumList.Add(newPrepostion);
+                                        }
+                                        else if (sectionName == "Interjection")
+                                        {
+                                            HtmlNode pNode = nextNode.NextSibling.NextSibling;
+                                            HtmlNode olNode = pNode.NextSibling.NextSibling;
+                                            Interjection newInterjection = new Interjection();
+                                            newInterjection.BaseForm = pNode.SelectSingleNode("./strong[@class='Latn headword']").InnerText;
+                                            verbumList.Add(newInterjection);
                                         }
                                     }
                                 }
@@ -985,7 +1071,7 @@ NumberType:{1}
         static void Main(string[] args)
         {
             //string queryString = "amo moneo ago audio capio fio";
-            string queryString = "labor virum vocat longos tibi eam nobis vobis huius cuius";
+            string queryString = "labor virum vocat longos tibi eam et sed ecce per sub";
             Console.WriteLine("The Query String is ");
             Console.WriteLine(queryString);
             Console.WriteLine("####Start Querying####");
